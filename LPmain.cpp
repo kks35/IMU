@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
             d = lpms->getCurrentData();
 
             // Shows data
-            printf("Timestamp=%f, qW=%f, qX=%f, qY=%f, qZ=%f, AccX=%f, AccY=%f, AccZ=%f\n", 
-                d.timeStamp, d.q[0], d.q[1], d.q[2], d.q[3],
+            printf("Timestamp=%f, EurX=%f, EurY=%f, EurZ=%f, AccX=%f, AccY=%f, AccZ=%f\n", 
+                d.timeStamp, d.r[0], d.r[1], d.r[2],
                 d.a[0], d.a[1], d.a[2]);
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
