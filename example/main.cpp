@@ -19,7 +19,7 @@ int main() {
 			std::cout << "Acc(" << d.a[0] << ", " << d.a[1] << ", " << d.a[2] << "), ";
 
 			// Quaternion orientation data
-			std::cout << "Q(" << d.q[0] << ", " << d.q[1] << ", " << d.q[2] << ", " << d.q[3] << ")" << std::endl;
+			std::cout << "Eur(" << d.r[0] << ", " << d.r[1] << ", " << d.r[2] << ")" << std::endl;
 		}
 	}
 }
