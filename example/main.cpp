@@ -18,7 +18,7 @@ int main() {
 			// Accelerometer Data
 			std::cout << "Acc(" << d.a[0] << ", " << d.a[1] << ", " << d.a[2] << "), ";
 
-			// Quaternion orientation data
+			// Euler Angle data
 			std::cout << "Eur(" << d.r[0] << ", " << d.r[1] << ", " << d.r[2] << ")" << std::endl;
 		}
 	}
