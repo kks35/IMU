@@ -1,6 +1,6 @@
 const Vec tx_loc(0.0, 0.0, 2.83); // Tx side mirror location
 
-//getting current euler angle to getting misalign rotation matrix//
+//getting current euler angle : d.eul[3] to getting misalign rotation matrix//
 const Vec m = {d.eul[0] * pi/180, d.eul[1] * pi/180, d.eul[2] * pi/180};
 
 float mRot[3][3] = {{cos(m.y)*cos(m.x), cos(m.y)*sin(m.x), -sin([m.y])}, {-cos(m.z)*sin(m.x)+sin(m.z)*sin(m.y)*cos(m.x), cos(m.z)*cos(m.x)+sin(m.z)*sin(m.y)*sin(m.x), sin(m.z)*cos(m.y)}, {sin(m.z)*sin(m.x)+cos(m.z)*sin(m.y)*cos(m.x), -sin(m.z)*cos(m.x)+cos(m.z)*sin(m.y)*sin(m.x), cos(m.z)*cos(m.y)}};
