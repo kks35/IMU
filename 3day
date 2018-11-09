@@ -1,0 +1,93 @@
+const Vec tx_loc(0.0, 0.0, 2.83); // Tx side mirror location
+
+//getting current euler angle, average 1000 time, to getting misalign rotation matrix//
+Vec m = {d.q[0] * pi/180, d.q[1] * pi/180, d.q[2] * pi/180};
+
+float mRot[3][3] = {{cos(m.y)*cos(m.x), cos(m.y)*sin(m.x), -sin([m.y])}, {-cos(m.z)*sin(m.x)+sin(m.z)*sin(m.y)*cos(m.x), cos(m.z)*cos(m.x)+sin(m.z)*sin(m.y)*sin(m.x), sin(m.z)*cos(m.y)}, {sin(m.z)*sin(m.x)+cos(m.z)*sin(m.y)*cos(m.x), -sin(m.z)*cos(m.x)+cos(m.z)*sin(m.y)*sin(m.x), cos(m.z)*cos(m.y)}};
+
+//getting current quaterion, average 1000 time, to getting misalign rotation matrix//
+float q[4] = {0.0,0.0,0.0,0.0};
+			q[0] = d.q[0];//w
+			q[1] = d.q[1];//x
+			q[2] = d.q[2];//y
+			q[3] = d.q[3];//z
+
+float qRot[3][3] = {{1-2*pow(q[2],2)-2*pow(q[3],2), 2*q[1]*q[2]-2*q[0]*q[3], 2*q[1]*q[3]+2*q[0]*q[2]}, {2*q[1]*q[2]+2*q[0]*q[3], 1-2*pow(q[1],2)-2*pow(q[3],2), 2*q[2]*q[3]-2*q[0]*q[1]}, {2*q[1]*q[3]-2*q[0]*q[2], 2*q[2]*q[3]+2*q[0]*q[1], 1-2*pow(q[1],2)-2*pow(q[2],2)}};// calculate rotation matrix
+
+// verify two matrix, minus two matrix, if zero, the rotation matrix is accurate.
+for (int i=0; i<3; i++){
+			  for(int j=0; j<3; j++){
+			    std::cout << mRot[i][j] - qRot[i][j];
+			  }
+			  std::cout << std::endl; // print out result
+			}
+// If the Matrix is correct, Calculate determinant of rotation matrix.
+			float deter = 0.0;
+			for(int i = 0; i < 3; ++i) {
+				deter = deter + (mRot[0][i] * (mRot[1][(i + 1) % 3] * mRot[2][(i + 2) % 3] - mRot[1][(i + 2) % 3] * mRot[2][(i + 1) % 3]));
+			}
+
+			// Next Step Calculate inverse rotation matrix
+			float mInv[3][3];
+			for (int i = 0; i < 3; ++i){
+			  for (int j = 0; j < 3; ++j)
+				mInv[i][j] =
+					(
+						(mRot[(j + 1) % 3][(i + 1) % 3] * mRot[(j + 2) % 3][(i + 2) % 3]) -
+						(mRot[(j + 1) % 3][(i + 2) % 3] * mRot[(j + 2) % 3][(i + 1) % 3])
+					) / deter;
+			}
+// Initialize position value
+
+Vec GM_0 = {0.0, 0.0, 0.0}; // 1X3 array to hold GM position, at time t, initialize
+Vec GM_1 = {0.0, 0.0, 0.0}; // 1X3 array to hold GM position, at time t+1, initialize
+Vec VR_0 = {0.0, 0.0, 0.0}; // 1X3 array to hold VR position, at time t, initialize
+Vec VR_1 = {0.0, 0.0, 0.0}; // 1X3 array to hold VR position, at time t+1, initialize
+
+// read position value at t=0;
+float VR_0.x = d.x;
+float VR_0.y = d.y;
+float VR_0.z = d.z;
+
+//////////////////////////////////// LOOP START ////////////////////////////////////////
+// read noew position
+while(ture){
+
+
+// read position value at t=1;
+float VR_1.x = d.x;
+float VR_1.y = d.y;
+float VR_1.z = d.z;
+
+// Calculate position in FSO coordinate (by (VR_1 - VR_0)*mInv = GM_1 - GM_0)
+Vec VR_delta(VR_1.x - VR_0.x, VR_1.y - VR_0.y, VR_1.z - VR_0.z);
+Vec GM_delta; // GM_delta = GM1-GM0
+			for (int i = 0; i < 3; ++i){
+			  for (int j = 0; j < 3; ++j){
+				GM_delta[i] += (mInv[i][j] * VR_delta[j]);
+			  }
+			}
+GM_1 = GM_delta + GM_0; // Is the position in fso coordinate
+
+//Then based on GM_1, calculate the angle response.
+
+float tx_angle_1 = 0, tx_angle_2 = 0; // In degrees
+			tx_angle_1 = (atan((GM_1.x - tx_loc.x)/(GM_1.z - tx_loc.z)) - atan((GM_0.x - tx_loc.x)/(GM_0.z - tx_loc.z))) * 180/pi; // angle change = angle(t=1)-angle(t=0)
+			tx_angle_2 = (atan((GM_1.y - tx_loc.y)/(GM_1.z - tx_loc.z)) - atan((GM_0.y - tx_loc.y)/(GM_0.z - tx_loc.z))) * 180/pi;
+
+			// Adjust the tx_fso if it is connected.
+			int tx_gm1_val = 0, tx_gm2_val = 0;
+			tx_gm1_val = init_gm1 + degreeToGMUnit(tx_angle_1);
+			tx_gm2_val = init_gm2 + degreeToGMUnit(tx_angle_2);
+
+			if(tx_fso != nullptr) {
+                tx_fso->setGM2Val(tx_gm1_val);
+				tx_fso->setGM2Val(tx_gm2_val);
+			}
+
+// then new position become old position
+
+GM_1 = GM_0;
+VR_1 = VR_0;
+
+}
